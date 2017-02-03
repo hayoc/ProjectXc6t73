@@ -1,6 +1,6 @@
 from nltk.corpus import wordnet as wn
 from collections import Counter
-import logging as log
+import logging
 import os
 import re
 
@@ -47,7 +47,7 @@ def P(word, N=sum(WORDS.values())):
 def correction(word):
     """Most probable spelling correction for word."""
     corr = max(candidates(word), key=P)
-    log.info("Spelling correction: %s -> %s" % (word, corr))
+    logging.info("Spelling correction: %s -> %s" % (word, corr))
     return corr
 
 
