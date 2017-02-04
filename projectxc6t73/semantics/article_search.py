@@ -1,5 +1,6 @@
 from nltk.corpus import wordnet as wn
 import logging
+import time
 import requests
 
 
@@ -27,7 +28,12 @@ def daily_keywords(date):
     keywords = []
     calls = 0
     while len(keywords) < 5:
+        time.sleep(1)
         data = new_york_times_request(date, str(calls)).json()
+        logging.debug(str(data))
+        if 'response' not in data:
+            logging.error('NYT API limit exceeded')
+            return keywords
         calls += 1
 
         for result in data['response']['docs']:
@@ -41,4 +47,7 @@ def daily_keywords(date):
                         return keywords
         # Stop if we've called API more than 10 times and still haven't found enough keywords
         if calls > 10:
+            logging.warning('Unable to find 5 keywords on %s' % date)
             return keywords
+
+
