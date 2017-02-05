@@ -4,10 +4,10 @@ import time
 import requests
 
 
-def new_york_times_request(date, page):
+def new_york_times_request(date, page, key):
     url = "https://api.nytimes.com/svc/search/v2/articlesearch.json"
     params = {
-        'api-key': '146f93e3db7345cc885b14999e9833d8',
+        'api-key': key,
         'begin_date': date,
         'end_date': date,
         'fl': 'keywords',
@@ -29,8 +29,13 @@ def daily_keywords(date):
     calls = 0
     while len(keywords) < 5:
         time.sleep(1)
-        data = new_york_times_request(date, str(calls)).json()
-        logging.debug(str(data))
+
+        data = {}
+        try:
+            data = new_york_times_request(date, str(calls), api_key(calls)).json()
+            logging.debug(str(data))
+        except ValueError:
+            logging.error('NYT API: JSONDecodeError')
         if 'response' not in data:
             logging.error('NYT API limit exceeded')
             return keywords
@@ -51,3 +56,9 @@ def daily_keywords(date):
             return keywords
 
 
+def api_key(calls):
+    if calls % 2 == 0:
+        api_key = 'bdd5af6df5d24455aa7b0765e5ab611a'
+    else:
+        api_key = '146f93e3db7345cc885b14999e9833d8'
+    return api_key
