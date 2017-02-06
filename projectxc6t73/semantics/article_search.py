@@ -17,11 +17,12 @@ def new_york_times_request(date, page, key):
     return requests.get(url, params=params)
 
 
-def daily_keywords(date):
+def daily_keywords(date, index):
     """
         Get 5 keywords for a particular day based on articles from New York Times
     Args:
         date: Day we should find keywords for (format:YYYYMMDD)
+        index: Amount of calls done to the API
     Returns:
         list of keywords (ideally 5)
     """
@@ -32,7 +33,7 @@ def daily_keywords(date):
 
         data = {}
         try:
-            data = new_york_times_request(date, str(calls), api_key(calls)).json()
+            data = new_york_times_request(date, str(calls), api_key(index)).json()
             logging.debug(str(data))
         except ValueError:
             logging.error('NYT API: JSONDecodeError')
