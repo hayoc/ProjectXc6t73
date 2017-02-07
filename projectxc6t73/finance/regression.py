@@ -91,7 +91,7 @@ def linear_regression(stock_list, recalculate=True):
     ref_word = 'war'
     tickers = []
     dates = []
-    with open('{}_tickers.pickle'.format(stock_list), 'rb') as f:
+    with open('tickers_pickle/{}_tickers.pickle'.format(stock_list), 'rb') as f:
         tickers = pickle.load(f)
     size = len(tickers)
 
@@ -101,8 +101,6 @@ def linear_regression(stock_list, recalculate=True):
     if not len(dates) > 0:
         logging.warning('No daterange for %s' % stock_list)
         return
-    if not os.path.exists('results'):
-        os.makedirs('results')
     if not os.path.exists('results/confidence'):
         os.makedirs('results/confidence')
     if not os.path.exists('results/prediction'):

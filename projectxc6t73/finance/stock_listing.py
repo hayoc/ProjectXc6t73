@@ -18,9 +18,7 @@ def save_sp500_tickers(stock_list):
     for row in table.findAll('tr')[1:]:
         ticker = row.findAll('td')[0].text
         tickers.append(ticker)
-
-    with open('{}_tickers.pickle'.format(stock_list), 'wb') as f:
-        pickle.dump(tickers, f)
+    dump_pickle(stock_list, tickers)
 
     return tickers
 
@@ -28,11 +26,15 @@ def save_sp500_tickers(stock_list):
 def save_etf_tickers(path, stock_list):
     df = pd.read_csv(path)
     tickers = df['Symbol'].tolist()
-
-    with open('{}_tickers.pickle'.format(stock_list), 'wb') as f:
-        pickle.dump(tickers, f)
-
+    dump_pickle(stock_list, tickers)
     return tickers
+
+
+def dump_pickle(stock_list, tickers):
+    if not os.path.exists('tickers_pickle'):
+        os.makedirs('tickers_pickle')
+    with open('tickers_pickle/{}_tickers.pickle'.format(stock_list), 'wb') as f:
+        pickle.dump(tickers, f)
 
 
 def yahoo_data(start_date, end_date, stock_list):
@@ -57,10 +59,12 @@ def ticker_data(ticker, start_date, end_date):
         except:
             logging.error('No stock data found for %s' % ticker)
 
+
 if __name__ == "__main__":
     logging.getLogger().setLevel(logging.INFO)
     start = dt.datetime(2016, 1, 1)
     end = dt.datetime(2017, 1, 1)
 
-    save_etf_tickers('ETFList.csv', 'etf')
-    yahoo_data(start, end, 'etf')
+    save_etf_tickers('etfs/ETFList.csv', 'etf')
+    save_sp500_tickers('sp500')
+    #yahoo_data(start, end, 'etf')
