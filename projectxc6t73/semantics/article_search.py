@@ -3,6 +3,8 @@ import logging
 import time
 import requests
 
+from projectxc6t73.config import config
+
 
 def new_york_times_request(date, page, key):
     url = "https://api.nytimes.com/svc/search/v2/articlesearch.json"
@@ -59,7 +61,7 @@ def daily_keywords(date, index):
 
 def api_key(calls):
     if calls % 2 == 0:
-        api_key = 'bdd5af6df5d24455aa7b0765e5ab611a'
+        api_key = config['api_keys'][0]
     else:
-        api_key = '146f93e3db7345cc885b14999e9833d8'
+        api_key = config['api_keys'][1]
     return api_key

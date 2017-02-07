@@ -9,6 +9,8 @@ import pandas_datareader.data as web
 import logging
 import csv
 
+from projectxc6t73.config import config
+
 
 def save_sp500_tickers(stock_list):
     response = requests.get('https://en.wikipedia.org/wiki/List_of_S&P_500_companies')
@@ -62,8 +64,8 @@ def ticker_data(ticker, start_date, end_date):
 
 if __name__ == "__main__":
     logging.getLogger().setLevel(logging.INFO)
-    start = dt.datetime(2016, 1, 1)
-    end = dt.datetime(2017, 1, 1)
+    start = config['stocks_start_date']
+    end = config['stocks_end_date']
 
     save_etf_tickers('etfs/ETFList.csv', 'etf')
     save_sp500_tickers('sp500')

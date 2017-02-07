@@ -1,5 +1,6 @@
 import itertools
 
+from projectxc6t73.config import config
 from projectxc6t73.semantics.semantic_similarity import semantic_similarity
 from projectxc6t73.semantics.article_search import daily_keywords
 from sklearn import preprocessing, svm, model_selection
@@ -50,18 +51,19 @@ def keyword_features(ref_word, dates, recalculate=True):
 
 def past_date(date):
     date = dt.datetime.strptime(date, "%Y-%m-%d")
-    past = date - dt.timedelta(days=7)
+    past = date - dt.timedelta(days=config['prediction_timespan'])
     return past.strftime("%Y-%m-%d")
 
 
 def features_for_prediction(ref_word, recalculate=True):
     future_features = []
+    timespan = config['prediction_timespan']
     present = dt.datetime.today()
-    start = present - dt.timedelta(days=7)
+    start = present - dt.timedelta(days=timespan)
     start_date = start.strftime("%Y-%m-%d")
     end_date = present.strftime("%Y-%m-%d")
     if recalculate:
-        for i, date in enumerate((start + dt.timedelta(days=n) for n in range(7))):
+        for i, date in enumerate((start + dt.timedelta(days=n) for n in range(timespan))):
             date = date.strftime("%Y-%m-%d")
             keywords = daily_keywords(date.replace("-", ""), i)
             if len(keywords) == 5:
@@ -88,7 +90,7 @@ def features_for_prediction(ref_word, recalculate=True):
 
 
 def linear_regression(stock_list, recalculate=True):
-    ref_word = 'war'
+    ref_word = config['ref_word']
     tickers = []
     dates = []
     with open('tickers_pickle/{}_tickers.pickle'.format(stock_list), 'rb') as f:
@@ -111,6 +113,9 @@ def linear_regression(stock_list, recalculate=True):
     features = features.drop(features.columns[0], axis=1)
     prediction_features = features_for_prediction(ref_word, recalculate)
     prediction_features = prediction_features.fillna(value=0)
+    if prediction_features.empty:
+        logging.error('Prediction Features empty - File not found. Try re-running with Recalculate True')
+        return
 
     for i, ticker in enumerate(tickers):
         if os.path.exists('stocks_dfs/{}.csv'.format(ticker)):
@@ -131,12 +136,13 @@ def linear_regression(stock_list, recalculate=True):
                 conf_df.to_csv('results/confidence/{}_confidence.csv'.format(ticker))
                 logging.info('Confidence for stock %s: %s - %d/%d' % (ticker, confidence, i, size))
 
-                prediction = clf.predict(np.array(prediction_features.drop(['Date'], 1)))
-                pred_df = pd.DataFrame({'Date': prediction_features['Date'], 'Prediction': prediction}).set_index('Date')
+                prediction = clf.predict(prediction_features.drop(['Date'], 1))
+                pred_df = pd.DataFrame({'Date': prediction_features.index.values, 'Prediction': prediction}).set_index('Date')
                 pred_df.to_csv('results/prediction/{}_prediction.csv'.format(ticker))
             except ValueError as e:
                 logging.error('Failed to get confidence and prediction for stock %s' % ticker)
                 logging.error(e)
+
 
 
 logging.getLogger().setLevel(logging.INFO)

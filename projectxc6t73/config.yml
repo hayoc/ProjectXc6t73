@@ -1,0 +1,7 @@
+api_keys:
+- yourkeyhere
+- yourkeyhere
+prediction_timespan: 7
+ref_word: war
+stocks_end_date: 2017-01-01
+stocks_start_date: 2016-01-01
